@@ -150,16 +150,38 @@ impl SttEngine {
 
     async fn transcribe_via_server(&self, port: u16, wav_path: &str) -> Result<Transcript> {
         // POST the WAV file to whisper server's /inference endpoint.
+        // We also send `language`, `temperature`, and `response_format` form
+        // fields so the server uses the English-only decoder (when configured),
+        // deterministic decoding, and a structured JSON response. Without
+        // language, whisper-server runs the multilingual decoder, which is
+        // noticeably less accurate on conversational English.
         let wav_data = tokio::fs::read(wav_path).await?;
         let addr = format!("127.0.0.1:{}", port);
 
         let boundary = "----GeniePodBoundary";
-        let body = format!(
+
+        // Build multipart body parts: language (optional), temperature,
+        // response_format, then the file.
+        let mut text_parts = String::new();
+        if let Some(language) = &self.language_hint {
+            text_parts.push_str(&format!(
+                "--{boundary}\r\nContent-Disposition: form-data; name=\"language\"\r\n\r\n{language}\r\n"
+            ));
+        }
+        text_parts.push_str(&format!(
+            "--{boundary}\r\nContent-Disposition: form-data; name=\"temperature\"\r\n\r\n0.0\r\n"
+        ));
+        text_parts.push_str(&format!(
+            "--{boundary}\r\nContent-Disposition: form-data; name=\"response_format\"\r\n\r\njson\r\n"
+        ));
+
+        let file_part = format!(
             "--{boundary}\r\nContent-Disposition: form-data; name=\"file\"; filename=\"audio.wav\"\r\nContent-Type: audio/wav\r\n\r\n"
         );
         let body_end = format!("\r\n--{boundary}--\r\n");
 
-        let content_length = body.len() + wav_data.len() + body_end.len();
+        let content_length =
+            text_parts.len() + file_part.len() + wav_data.len() + body_end.len();
 
         let stream = tokio::net::TcpStream::connect(&addr).await?;
         let (reader, mut writer) = stream.into_split();
@@ -169,7 +191,8 @@ impl SttEngine {
         );
 
         writer.write_all(request.as_bytes()).await?;
-        writer.write_all(body.as_bytes()).await?;
+        writer.write_all(text_parts.as_bytes()).await?;
+        writer.write_all(file_part.as_bytes()).await?;
         writer.write_all(&wav_data).await?;
         writer.write_all(body_end.as_bytes()).await?;
 

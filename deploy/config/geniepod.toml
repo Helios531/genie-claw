@@ -22,7 +22,12 @@ whisper_port = 8178               # alpha.5: long-running whisper-server via
                                   # cold-start. Set to 0 to fall back to spawning
                                   # whisper-cli per call (debugging or no-server hosts).
 whisper_cli_path = "/opt/geniepod/bin/whisper-cli"
-stt_language = "auto"             # "auto" or a language code like "en", "es", "de", "zh".
+stt_language = "en"               # Whisper decoder hint. Forcing "en" uses the
+                                  # English-only decoder, which is noticeably more
+                                  # accurate for English speech than "auto" (which
+                                  # runs the multilingual decoder). Set to "auto" or
+                                  # a different code ("es", "de", "zh", ...) for
+                                  # multilingual / non-English installs.
 piper_model = "/opt/geniepod/voices/en_US-amy-medium.onnx"
 piper_path = "/opt/geniepod/piper/piper"
 piper_pipe_mode = false           # true = long-running subprocess (lower latency).
