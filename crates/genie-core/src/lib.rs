@@ -1,8 +1,8 @@
 //! # genie-core
 //!
-//! Core runtime for GeniePod Home.
+//! Core runtime for the NVIDIA Jetson Orin 8GB-native home agent.
 //!
-//! Built for the GeniePod Home appliance, but exposed as modular Rust components.
+//! Built for the NVIDIA Jetson Orin 8GB appliance path, but exposed as modular Rust components.
 //! Any Rust project can use these modules independently:
 //!
 //! ```rust,no_run

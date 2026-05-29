@@ -6,10 +6,10 @@
 
 **Low-latency, limited-context AI harness for private on-device homes.**
 
-GenieClaw is the Rust agent layer for GeniePod Home. It is built for small local
-models, tight VRAM budgets, and a 4096-token Jetson baseline. This repo owns
-prompt assembly, memory, tool routing, smart-home intent, safety policy, audit,
-and channel/session adapters.
+GenieClaw is the Rust agent layer native to NVIDIA Jetson Orin 8GB. It is built
+for small local models, tight VRAM budgets, and a 4096-token Jetson baseline.
+This repo owns prompt assembly, memory, tool routing, smart-home intent, safety
+policy, audit, and channel/session adapters.
 
 The product goal is a private household agent that is fast because it receives
 the right family memory, room/device state, and safety context, not because it
